@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alexander Popp — Mini App (RU)</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --neo-green:#00FF9D;
+      --neo-green-dark:#00CC7D;
+      --neo-glow:0 0 22px rgba(0,255,157,.35);
+      --bg-black:#000;
+      --bg-card:#0F0F0F;
+      --text-white:#fff;
+      --text-muted:#B8B8B8;
+      --radius:16px;
+      --font-main:'Montserrat',sans-serif;
+      --font-alt:'Inter',sans-serif;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(0,255,157,.12) 0%, rgba(0,0,0,0) 60%),
+        radial-gradient(900px 520px at 10% 20%, rgba(0,255,157,.08) 0%, rgba(0,0,0,0) 55%),
+        var(--bg-black);
+      color:var(--text-white);
+      font-family:var(--font-main);
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+      margin:0;
+      padding:14px;
+    }
+
+    /* ====== APP SHELL (ощущение приложения) ====== */
+    .app{
+      width:min(430px, 100%);
+      margin:0 auto;
+      min-height:calc(100vh - 28px);
+      border-radius:26px;
+      border:1px solid rgba(0,255,157,.22);
+      background: linear-gradient(180deg, rgba(15,15,15,.88) 0%, rgba(0,0,0,.94) 100%);
+      box-shadow: 0 30px 90px rgba(0,0,0,.75), 0 0 30px rgba(0,255,157,.08);
+      overflow:hidden;
+      position:relative;
+    }
+
+    /* Top bar */
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:5;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px 16px;
+      background: rgba(0,0,0,.55);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .brand b{
+      font-size:14px;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand span{
+      font-size:12px;
+      color:var(--text-muted);
+      font-family:var(--font-alt);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(0,255,157,.35);
+      background: rgba(0,0,0,.35);
+      font-family:var(--font-alt);
+      font-size:12px;
+      color:var(--text-muted);
+      flex:0 0 auto;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: rgba(0,255,157,.9);
+      box-shadow:0 0 14px rgba(0,255,157,.4);
+    }
+
+    /* Content */
+    .content{
+      padding:16px 16px 96px 16px; /* место под bottom bar */
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-self:flex-start;
+      padding:9px 14px;
+      background:var(--neo-green);
+      color:#000;
+      font-weight:900;
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:.2px;
+    }
+
+    .hero h1{
+      font-size:26px;
+      font-weight:900;
+      line-height:1.12;
+      margin-top:8px;
+    }
+    .hero p{
+      margin-top:10px;
+      color:var(--text-muted);
+      font-family:var(--font-alt);
+      font-size:14px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+
+    /* Maria card */
+    .card{
+      background:var(--bg-card);
+      border:1px solid rgba(0,255,157,.16);
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow: 0 0 22px rgba(0,255,157,.08);
+    }
+    .maria-preview{
+      position:relative;
+      height:230px;
+      background:#000;
+      overflow:hidden;
+    }
+    .maria-preview img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      transform:scale(1.16);
+      filter:saturate(1.05) contrast(1.03);
+      display:block;
+    }
+    .maria-preview:after{
+      content:"";
+      position:absolute;left:0;right:0;bottom:0;
+      height:95px;
+      background:linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,0) 85%);
+      pointer-events:none;
+    }
+    .maria-live{
+      position:absolute;
+      left:14px;
+      top:14px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.45);
+      border:1px solid rgba(0,255,157,.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-family:var(--font-alt);
+      font-weight:800;
+      font-size:12px;
+      color:var(--text-white);
+    }
+    .maria-live .dot{ width:7px;height:7px; }
+
+    .card-body{
+      padding:14px 14px 14px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .card-title{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .card-title h2{
+      font-size:16px;
+      font-weight:900;
+      line-height:1.15;
+    }
+    .tag{
+      flex:0 0 auto;
+      font-family:var(--font-alt);
+      font-size:11px;
+      color:#000;
+      background:var(--neo-green);
+      padding:7px 10px;
+      border-radius:999px;
+      font-weight:900;
+    }
+    .card-body p{
+      color:var(--text-muted);
+      font-family:var(--font-alt);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .cta-row{
+      display:flex;
+      gap:10px;
+      margin-top:2px;
+    }
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius:16px;
+      padding:12px 14px;
+      font-weight:900;
+      font-family:var(--font-main);
+      transition:all .25s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      user-select:none;
+      text-decoration:none;
+    }
+    .btn-primary{
+      flex:1;
+      background:var(--neo-green);
+      color:#000;
+      box-shadow:0 0 22px rgba(0,255,157,.25);
+    }
+    .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 0 32px rgba(0,255,157,.38); }
+
+    .btn-secondary{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text-white);
+    }
+    .btn-secondary:hover{
+      border-color:rgba(0,255,157,.45);
+      box-shadow:0 0 20px rgba(0,255,157,.12);
+      transform:translateY(-1px);
+    }
+
+    .note{
+      font-size:11px;
+      color:#7f859a;
+      font-family:var(--font-alt);
+      text-align:center;
+      margin-top:2px;
+    }
+
+    /* Blocks */
+    .block{
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:20px;
+      padding:14px;
+    }
+    .block h3{
+      font-size:14px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+    .bullets{
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .bullets li{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      color:var(--text-muted);
+      font-family:var(--font-alt);
+      font-size:13px;
+    }
+    .check{
+      width:18px;height:18px;
+      border-radius:7px;
+      background:rgba(0,255,157,.12);
+      border:1px solid rgba(0,255,157,.35);
+      box-shadow:0 0 14px rgba(0,255,157,.10);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--neo-green);
+      flex:0 0 auto;
+      margin-top:1px;
+      font-weight:900;
+      font-family:var(--font-main);
+      font-size:12px;
+    }
+
+    /* Interest */
+    .options{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .option{
+      padding:12px 12px;
+      border-radius:16px;
+      background:#000;
+      border:1px solid rgba(255,255,255,.10);
+      cursor:pointer;
+      transition:all .2s ease;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .option span{
+      font-family:var(--font-alt);
+      font-size:13px;
+      color:var(--text-muted);
+      font-weight:700;
+    }
+    .option.active{
+      border-color:rgba(0,255,157,.72);
+      box-shadow:var(--neo-glow);
+    }
+    .option.active span{ color:var(--text-white); }
+    .chip{
+      font-size:11px;
+      font-family:var(--font-alt);
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(0,255,157,.10);
+      border:1px solid rgba(0,255,157,.25);
+      color:var(--neo-green);
+      flex:0 0 auto;
+      font-weight:800;
+      opacity:.65;
+    }
+    .option.active .chip{ opacity:1; }
+
+    .contact-row{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+    }
+    .contact-btn{
+      flex:1;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#000;
+      color:var(--text-white);
+      text-decoration:none;
+      font-family:var(--font-alt);
+      font-weight:900;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      transition:all .2s ease;
+    }
+    .contact-btn:hover{
+      border-color:rgba(0,255,157,.45);
+      box-shadow:0 0 20px rgba(0,255,157,.12);
+      transform:translateY(-1px);
+    }
+    .wa{ color:#25d366; }
+    .tg{ color:#2aabee; }
+
+    /* Footer */
+    .footer{
+      padding:14px 16px 16px 16px;
+      border-top:1px solid rgba(255,255,255,.06);
+      background: rgba(0,0,0,.45);
+    }
+    .footer-links{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .footer-links a{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 12px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      text-decoration:none;
+      color:var(--text-white);
+      font-family:var(--font-alt);
+      font-weight:800;
+      font-size:13px;
+      transition:all .2s ease;
+    }
+    .footer-links a:hover{
+      border-color:rgba(0,255,157,.35);
+      box-shadow:0 0 20px rgba(0,255,157,.10);
+      transform:translateY(-1px);
+    }
+    .arrow{ color:var(--neo-green); opacity:.9; }
+    .copyright{
+      margin-top:12px;
+      text-align:center;
+      color:#555;
+      font-family:var(--font-alt);
+      font-size:11px;
+    }
+
+    /* ====== STICKY BOTTOM BAR (как в приложении) ====== */
+    .bottom-bar{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      padding:10px 10px 12px 10px;
+      background: rgba(0,0,0,.72);
+      border-top:1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index:6;
+    }
+    .bottom-grid{
+      display:grid;
+      grid-template-columns: 1.35fr 1fr 1fr;
+      gap:10px;
+    }
+    .bb-btn{
+      border-radius:16px;
+      height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-family:var(--font-alt);
+      font-weight:900;
+      font-size:13px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      color:var(--text-white);
+      cursor:pointer;
+      transition:all .2s ease;
+      text-decoration:none;
+      user-select:none;
+    }
+    .bb-btn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(0,255,157,.35);
+      box-shadow:0 0 20px rgba(0,255,157,.10);
+    }
+    .bb-primary{
+      background: var(--neo-green);
+      color:#000;
+      border-color: rgba(0,255,157,.35);
+      box-shadow: 0 0 22px rgba(0,255,157,.22);
+      font-family:var(--font-main);
+    }
+    .bb-primary:hover{
+      box-shadow: 0 0 34px rgba(0,255,157,.35);
+    }
+
+    /* ====== FULLSCREEN APP MODAL (3 экрана внутри) ====== */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.86);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease;
+      z-index:99990;
+    }
+    .modal{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease;
+      z-index:99991;
+    }
+    .modal-shell{
+      width:min(520px, 100%);
+      height:100%;
+      background:#000;
+      border-left:1px solid rgba(255,255,255,.06);
+      border-right:1px solid rgba(255,255,255,.06);
+      position:relative;
+      overflow:hidden;
+    }
+    .modal-top{
+      position:sticky;
+      top:0;
+      z-index:10;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      background:rgba(0,0,0,.65);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .modal-title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .modal-title b{
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .modal-title span{
+      font-size:12px;
+      color:var(--text-muted);
+      font-family:var(--font-alt);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .modal-close{
+      width:44px;height:44px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.9);
+      font-size:22px;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .modal-close:hover{ background:rgba(255,255,255,.12); transform:translateY(-1px); }
+
+    .modal-open .modal-backdrop,
+    .modal-open .modal{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    /* screens inside modal */
+    .screen{
+      display:none;
+      height:calc(100% - 69px);
+      overflow:hidden;
+    }
+    .screen.active{
+      display:block;
+      animation:fadeIn .35s ease;
+    }
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(10px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+
+    /* Screen 1: Welcome */
+    .welcome{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:26px 18px;
+      background:
+        radial-gradient(900px 520px at 50% -10%, rgba(0,255,157,.14) 0%, rgba(0,0,0,0) 60%),
+        linear-gradient(180deg, #000 0%, #050505 100%);
+      text-align:center;
+    }
+    .welcome h1{
+      font-family:var(--font-main);
+      font-weight:900;
+      font-size:30px;
+      line-height:1.12;
+      margin-bottom:10px;
+    }
+    .welcome h1 .accent{
+      color:var(--neo-green);
+      text-shadow:0 0 22px rgba(0,255,157,.35);
+      display:inline-block;
+    }
+    .welcome p{
+      font-family:var(--font-alt);
+      color:var(--text-muted);
+      font-size:14px;
+      max-width:420px;
+      margin:0 auto 18px auto;
+    }
+    .welcome .bigbtn{
+      margin-top:10px;
+      width:100%;
+      max-width:420px;
+      margin-left:auto;
+      margin-right:auto;
+      padding:14px 16px;
+      border-radius:18px;
+      background:var(--neo-green);
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      font-size:16px;
+      color:#000;
+      box-shadow:0 0 28px rgba(0,255,157,.25);
+      transition:all .25s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-family:var(--font-main);
+    }
+    .welcome .bigbtn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 0 38px rgba(0,255,157,.35);
+    }
+    .welcome .small{
+      margin-top:12px;
+      font-family:var(--font-alt);
+      font-size:12px;
+      color:#7f859a;
+    }
+
+    /* Screen 2: Live iframe */
+    .livewrap{
+      height:100%;
+      background:#000;
+      position:relative;
+    }
+    .liveframe{
+      width:100%;
+      height:100%;
+      border:none;
+      background:#000;
+    }
+    .live-hud{
+      position:absolute;
+      left:14px;
+      right:14px;
+      top:14px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      pointer-events:none;
+      z-index:20;
+    }
+    .hud-pill{
+      pointer-events:none;
+      background:rgba(15,15,15,.86);
+      border:1px solid rgba(0,255,157,.45);
+      border-radius:18px;
+      padding:10px 12px;
+      box-shadow:0 0 22px rgba(0,255,157,.15);
+      max-width: calc(100% - 96px);
+    }
+    .hud-pill b{
+      display:block;
+      color:var(--neo-green);
+      font-size:13px;
+      font-weight:900;
+    }
+    .hud-pill span{
+      display:block;
+      margin-top:4px;
+      color:var(--text-muted);
+      font-family:var(--font-alt);
+      font-size:12px;
+    }
+    .timer{
+      pointer-events:none;
+      background:rgba(15,15,15,.86);
+      border:1px solid rgba(0,255,157,.45);
+      border-radius:18px;
+      padding:10px 12px;
+      color:var(--neo-green);
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      font-weight:900;
+      box-shadow:0 0 22px rgba(0,255,157,.12);
+      width:72px;
+      text-align:center;
+      flex:0 0 auto;
+    }
+    .live-actions{
+      position:absolute;
+      left:14px;
+      right:14px;
+      bottom:14px;
+      display:flex;
+      gap:10px;
+      z-index:25;
+    }
+    .live-actions button{
+      flex:1;
+      height:48px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.55);
+      color:var(--text-white);
+      font-family:var(--font-alt);
+      font-weight:900;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .live-actions button:hover{
+      transform:translateY(-1px);
+      border-color:rgba(0,255,157,.35);
+      box-shadow:0 0 20px rgba(0,255,157,.10);
+    }
+    .live-actions .end{
+      background:rgba(0,255,157,.14);
+      border-color:rgba(0,255,157,.45);
+      color:var(--neo-green);
+    }
+
+    /* Screen 3: Thank you */
+    .thanks{
+      height:100%;
+      overflow:auto;
+      padding:18px 16px 22px 16px;
+      background:
+        radial-gradient(900px 520px at 50% -10%, rgba(0,255,157,.12) 0%, rgba(0,0,0,0) 60%),
+        linear-gradient(180deg, #000 0%, #060606 100%);
+    }
+    .thanks h2{
+      font-family:var(--font-main);
+      font-weight:900;
+      font-size:22px;
+      text-align:center;
+      margin-top:6px;
+    }
+    .thanks p{
+      margin-top:10px;
+      color:var(--text-muted);
+      font-family:var(--font-alt);
+      font-size:13px;
+      text-align:center;
+      max-width:420px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .thanks .block{ margin-top:14px; }
+    .thanks .btn-row{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+    }
+    .thanks .btn-row a,
+    .thanks .btn-row button{
+      flex:1;
+      height:48px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text-white);
+      font-family:var(--font-alt);
+      font-weight:900;
+      cursor:pointer;
+      transition:all .2s ease;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+    .thanks .btn-row a:hover,
+    .thanks .btn-row button:hover{
+      transform:translateY(-1px);
+      border-color:rgba(0,255,157,.35);
+      box-shadow:0 0 20px rgba(0,255,157,.10);
+    }
+    .thanks .btn-row .primary{
+      background:var(--neo-green);
+      color:#000;
+      border-color:rgba(0,255,157,.35);
+      font-family:var(--font-main);
+      box-shadow:0 0 28px rgba(0,255,157,.20);
+    }
+    .thanks .btn-row .primary:hover{ box-shadow:0 0 38px rgba(0,255,157,.30); }
+
+    /* Modal: mobile */
+    @media (max-width:520px){
+      body{ padding:10px; }
+      .app{ border-radius:22px; min-height:calc(100vh - 20px); }
+      .hero h1{ font-size:24px; }
+      .maria-preview{ height:220px; }
+      .modal-shell{ border-left:none; border-right:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="pageRoot" class="app">
+
+    <div class="topbar">
+      <div class="brand">
+        <b>Alexander Popp</b>
+        <span>Мини-апп • Русская версия</span>
+      </div>
+      <div class="pill">
+        <span class="dot"></span>
+        <span>Мария онлайн</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- HERO -->
+      <div class="hero">
+        <div class="badge">Только 10 мест в первой линии доступно</div>
+        <h1>Ваш проводник в мир пассивного дохода.</h1>
+        <p>
+          Я покажу систему, по которой работаю сам: структурно, прозрачно и без “воды”.
+          Вы выбираете путь — <b>пассивный доход</b> или <b>партнёрская модель</b>.
+        </p>
+      </div>
+
+      <!-- MARIA CARD -->
+      <div class="card">
+        <div class="maria-preview">
+          <div class="maria-live"><span class="dot"></span>LIVE • Мария</div>
+          <!-- положи maria.jpeg рядом с файлом, либо замени src на URL -->
+          <img src="maria.jpeg" alt="Мария — ассистент" />
+        </div>
+
+        <div class="card-body">
+          <div class="card-title">
+            <h2>Поговорите с Марией</h2>
+            <div class="tag">AI-Диалог</div>
+          </div>
+
+          <p>
+            Мария объяснит возможности, ответит на вопросы и при необходимости
+            организует личный разговор со мной.
+          </p>
+
+          <div class="cta-row">
+            <button class="btn btn-primary" type="button" onclick="openModalAndGo('welcome')">
+              🎤 Начать разговор
+            </button>
+            <a class="btn btn-secondary" href="#links" title="Ссылки">🔗</a>
+          </div>
+
+          <div class="note">Микрофон включится автоматически • Можно завершить в любой момент</div>
+        </div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="block">
+        <h3>Обо мне</h3>
+        <ul class="bullets">
+          <li><span class="check">✓</span><span>20+ лет опыта в финансовой сфере</span></li>
+          <li><span class="check">✓</span><span>Сложное объясняю простым языком</span></li>
+          <li><span class="check">✓</span><span>Сопровождаю новичков без перегруза</span></li>
+          <li><span class="check">✓</span><span>Система легко дублируется</span></li>
+          <li><span class="check">✓</span><span>Помогаю построить сильную команду</span></li>
+        </ul>
+      </div>
+
+      <!-- CONTACT -->
+      <div id="contacts" class="block">
+        <h3>Связаться со мной</h3>
+
+        <div class="options">
+          <div class="option active" data-interest="Пассивный доход">
+            <span>Пассивный доход</span>
+            <span class="chip">Выбрано</span>
+          </div>
+          <div class="option" data-interest="Построение команды">
+            <span>Построение команды</span>
+            <span class="chip">Выбрать</span>
+          </div>
+          <div class="option" data-interest="Общий обзор">
+            <span>Общий обзор</span>
+            <span class="chip">Выбрать</span>
+          </div>
+        </div>
+
+        <div class="contact-row">
+          <a id="waLink" class="contact-btn wa" target="_blank" rel="noopener">WhatsApp</a>
+          <a id="tgLink" class="contact-btn tg" target="_blank" rel="noopener">Telegram</a>
+        </div>
+
+        <div class="note">Прямой контакт. Без спама.</div>
+      </div>
+
+      <!-- LINKS (как в оригинале: регистрация + презентация) -->
+      <div id="links" class="block">
+        <h3>Ссылки</h3>
+        <p style="color:var(--text-muted);font-family:var(--font-alt);font-size:13px;">
+          Регистрация и презентация откроются в отдельном окне.
+        </p>
+
+        <div class="footer-links" style="margin-top:12px;">
+          <a id="regLink" href="https://exfusion.ibportal.io/auth/register?sidi=ADD07A5A-FF2D-4EA2-94C1-CA2C0A2AFBEE&e=VOCaVNCHXn4kFyyZUN2b5Q8osF2EwWkEV49/Lasq/XQ=&a=1" target="_blank" rel="noopener">
+            <span>🚀 Регистрация / стать частью команды</span>
+            <span class="arrow">→</span>
+          </a>
+          <a id="pdfLink" href="https://www.notion.so/EXFUSION-THE-POWER-OF-EXCELLENCE-2c3c68ca641980868b5efd528671e414" target="_blank" rel="noopener">
+            <span>📄 Скачать презентацию</span>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <div class="copyright">© 2025 Alexander Popp — Mentorship & Trading System</div>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottom-bar">
+      <div class="bottom-grid">
+        <button class="bb-btn bb-primary" type="button" onclick="openModalAndGo('welcome')">🎤 Мария</button>
+        <button class="bb-btn" type="button" onclick="scrollToId('contacts')">☎ Контакт</button>
+        <button class="bb-btn" type="button" onclick="scrollToId('links')">🔗 Ссылки</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====== FULLSCREEN MODAL (3 экрана "как приложение", внутри — твой Vercel iframe) ====== -->
+  <div id="modalBackdrop" class="modal-backdrop"></div>
+
+  <div id="modal" class="modal" role="dialog" aria-label="Мария — AI Диалог" aria-modal="true">
+    <div class="modal-shell">
+      <div class="modal-top">
+        <div class="modal-title">
+          <b>Мария • AI Диалог</b>
+          <span id="modalSub">Подготовка к разговору</span>
+        </div>
+        <button class="modal-close" type="button" aria-label="Close" onclick="closeModal()">✕</button>
+      </div>
+
+      <!-- Screen 1 -->
+      <div id="screenWelcome" class="screen welcome active">
+        <h1>Готовы начать<br><span class="accent">разговор с Марией?</span></h1>
+        <p>
+          Задайте любой вопрос о системе, возможностях и следующем шаге.
+          Микрофон включится автоматически.
+        </p>
+        <button class="bigbtn" type="button" onclick="goLive()">
+          🎤 Начать LIVE-диалог
+        </button>
+        <div class="small">Совет: говорите короткими фразами • Мария отвечает сразу</div>
+      </div>
+
+      <!-- Screen 2 -->
+      <div id="screenLive" class="screen">
+        <div class="livewrap">
+          <div class="live-hud">
+            <div class="hud-pill">
+              <b id="hudStatus">Мария слушает вас</b>
+              <span id="hudHint">🎤 Говорите сейчас</span>
+            </div>
+            <div id="hudTimer" class="timer">00:00</div>
+          </div>
+
+          <iframe id="liveFrame" class="liveframe" src="" title="Maria Live"></iframe>
+
+          <div class="live-actions">
+            <button type="button" class="end" onclick="finishLive()">Завершить</button>
+            <button type="button" onclick="closeModal()">Свернуть</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 3 -->
+      <div id="screenThanks" class="screen thanks">
+        <h2>Спасибо за разговор!</h2>
+        <p>
+          Выберите, что вам ближе, и напишите мне — отвечу лично.
+        </p>
+
+        <div class="block">
+          <h3>Что вас интересует?</h3>
+          <div class="options">
+            <div class="option active" data-interest="Пассивный доход">
+              <span>Пассивный доход</span>
+              <span class="chip">Выбрано</span>
+            </div>
+            <div class="option" data-interest="Построение команды">
+              <span>Построение команды</span>
+              <span class="chip">Выбрать</span>
+            </div>
+            <div class="option" data-interest="Общий обзор">
+              <span>Общий обзор</span>
+              <span class="chip">Выбрать</span>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <a id="waLink2" class="primary" target="_blank" rel="noopener">WhatsApp</a>
+            <a id="tgLink2" target="_blank" rel="noopener">Telegram</a>
+          </div>
+
+          <div class="btn-row" style="margin-top:10px;">
+            <a id="pdfLink2" target="_blank" rel="noopener">📄 Презентация</a>
+            <a id="regLink2" target="_blank" rel="noopener">🚀 Регистрация</a>
+          </div>
+
+          <div class="note" style="margin-top:10px;">Прямой контакт. Без спама.</div>
+        </div>
+
+        <div class="btn-row" style="margin-top:14px;">
+          <button type="button" onclick="restartLive()">🔁 Ещё раз поговорить</button>
+          <button type="button" class="primary" onclick="closeModal()">Готово</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ===== CONFIG =====
+    // URL диалога (твой Vercel)
+    const LIVE_URL = "https://popp-api.vercel.app/demo.html";
+
+    // Внешние ссылки
+    const REG_URL = "https://exfusion.ibportal.io/auth/register?sidi=ADD07A5A-FF2D-4EA2-94C1-CA2C0A2AFBEE&e=VOCaVNCHXn4kFyyZUN2b5Q8osF2EwWkEV49/Lasq/XQ=&a=1";
+    const PDF_URL = "https://www.notion.so/EXFUSION-THE-POWER-OF-EXCELLENCE-2c3c68ca641980868b5efd528671e414";
+
+    // Контакты
+    const whatsappNumber = "491748660007";
+    const telegramUser   = "cryptopopp";
+
+    // ===== STATE =====
+    let selected = "Пассивный доход";
+    let timerInt = null;
+    let seconds = 0;
+
+    // ===== DOM =====
+    const optionsAll = () => document.querySelectorAll(".option");
+    const waLink  = document.getElementById("waLink");
+    const tgLink  = document.getElementById("tgLink");
+    const waLink2 = document.getElementById("waLink2");
+    const tgLink2 = document.getElementById("tgLink2");
+
+    const regLink  = document.getElementById("regLink");
+    const pdfLink  = document.getElementById("pdfLink");
+    const regLink2 = document.getElementById("regLink2");
+    const pdfLink2 = document.getElementById("pdfLink2");
+
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modal         = document.getElementById("modal");
+    const liveFrame     = document.getElementById("liveFrame");
+
+    const screenWelcome = document.getElementById("screenWelcome");
+    const screenLive    = document.getElementById("screenLive");
+    const screenThanks  = document.getElementById("screenThanks");
+
+    const modalSub  = document.getElementById("modalSub");
+    const hudStatus = document.getElementById("hudStatus");
+    const hudHint   = document.getElementById("hudHint");
+    const hudTimer  = document.getElementById("hudTimer");
+
+    // ===== LINKS INIT =====
+    regLink.href  = REG_URL;
+    pdfLink.href  = PDF_URL;
+    regLink2.href = REG_URL;
+    pdfLink2.href = PDF_URL;
+
+    function updateContactLinks(){
+      const text = encodeURIComponent(`Здравствуйте, Александр. Интересует: ${selected}`);
+      const wa = `https://wa.me/${whatsappNumber}?text=${text}`;
+      const tg = `https://t.me/${telegramUser}?text=${text}`;
+      waLink.href = wa; tgLink.href = tg;
+      waLink2.href = wa; tgLink2.href = tg;
+    }
+    updateContactLinks();
+
+    // ===== OPTION PICK (работает и на главном, и в модалке) =====
+    function bindOptions(){
+      const groups = [
+        // группа на главной
+        document.querySelector("#contacts")?.querySelectorAll(".option") || [],
+        // группа в спасибо
+        document.querySelector("#screenThanks")?.querySelectorAll(".option") || []
+      ];
+
+      groups.forEach(group=>{
+        group.forEach(o=>{
+          o.addEventListener("click", ()=>{
+            group.forEach(x=>x.classList.remove("active"));
+            o.classList.add("active");
+
+            // обновим чипы в группе
+            group.forEach(x=>{
+              const chip = x.querySelector(".chip");
+              if(!chip) return;
+              if(x.classList.contains("active")){
+                chip.textContent = "Выбрано";
+                chip.style.opacity = "1";
+              } else {
+                chip.textContent = "Выбрать";
+                chip.style.opacity = ".65";
+              }
+            });
+
+            selected = o.dataset.interest;
+            updateContactLinks();
+          });
+        });
+      });
+    }
+    bindOptions();
+
+    // ===== SCROLL =====
+    function scrollToId(id){
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    // ===== MODAL OPEN/CLOSE =====
+    function openModalAndGo(screen){
+      document.documentElement.classList.add("modal-open");
+      document.body.style.overflow = "hidden";
+      modalBackdrop.onclick = closeModal;
+      document.addEventListener("keydown", escClose);
+      showModalScreen(screen || "welcome");
+    }
+
+    function closeModal(){
+      stopTimer();
+      liveFrame.src = ""; // выгружаем
+      document.documentElement.classList.remove("modal-open");
+      document.body.style.overflow = "";
+      modalBackdrop.onclick = null;
+      document.removeEventListener("keydown", escClose);
+    }
+
+    function escClose(e){
+      if(e.key === "Escape") closeModal();
+    }
+
+    function showModalScreen(which){
+      screenWelcome.classList.remove("active");
+      screenLive.classList.remove("active");
+      screenThanks.classList.remove("active");
+
+      if(which === "welcome"){
+        modalSub.textContent = "Подготовка к разговору";
+        screenWelcome.classList.add("active");
+      }
+      if(which === "live"){
+        modalSub.textContent = "LIVE-диалог";
+        screenLive.classList.add("active");
+      }
+      if(which === "thanks"){
+        modalSub.textContent = "Контакты и следующий шаг";
+        screenThanks.classList.add("active");
+      }
+    }
+
+    // ===== LIVE FLOW =====
+    function goLive(){
+      showModalScreen("live");
+      hudStatus.textContent = "Мария слушает вас";
+      hudHint.textContent   = "🎤 Говорите сейчас";
+      liveFrame.src = LIVE_URL; // твой Vercel виджет
+      startTimer();
+    }
+
+    function finishLive(){
+      // мягко заканчиваем локально и переводим на спасибо
+      stopTimer();
+      liveFrame.src = "";
+      showModalScreen("thanks");
+    }
+
+    function restartLive(){
+      // снова на welcome, чтобы вау-эффект сохранялся
+      stopTimer();
+      liveFrame.src = "";
+      showModalScreen("welcome");
+    }
+
+    // ===== TIMER =====
+    function startTimer(){
+      stopTimer();
+      seconds = 0;
+      hudTimer.textContent = "00:00";
+      timerInt = setInterval(()=>{
+        seconds++;
+        const m = Math.floor(seconds/60);
+        const s = seconds%60;
+        hudTimer.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }, 1000);
+
+      // авто-завершение через 5 минут (как у тебя)
+      setTimeout(()=>{
+        if(document.documentElement.classList.contains("modal-open") && screenLive.classList.contains("active")){
+          finishLive();
+        }
+      }, 300000);
+    }
+
+    function stopTimer(){
+      if(timerInt) clearInterval(timerInt);
+      timerInt = null;
+    }
+
+    // ===== OPTIONAL: если iframe попросит закрыть модалку =====
+    window.addEventListener("message", (event)=>{
+      const data = event.data || {};
+      if(!data || data.type !== "closeWireframe") return;
+
+      const origin = event.origin || "";
+      const allowed = origin === "https://popp-api.vercel.app" || origin.endsWith(".vercel.app");
+      if(!allowed) return;
+
+      finishLive();
+    });
+
+  </script>
+</body>
+</html>
